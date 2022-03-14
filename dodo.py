@@ -73,7 +73,7 @@ def task_project1():
         duration_collected = 'duration_collected.tmp'
         if os.path.exists(duration_collected):
             print(f"{duration_collected} exists!")
-            recommend_actions()
+            recommend_actions(workload_csv)
             set_log_duration(False)
             print(f"Remove {duration_collected}")
             os.remove(duration_collected)
