@@ -66,6 +66,9 @@ def task_project1():
     def main(workload_csv, timeout):
         print(f"dodo received workload CSV: {workload_csv}")
         print(f"dodo received timeout: {timeout}")
+        if not os.path.exists(ACTION_FILE):
+            with open(ACTION_FILE, 'w') as f:
+                pass
 
         duration_collected = 'duration_collected.tmp'
         if os.path.exists(duration_collected):
