@@ -9,7 +9,7 @@ DEFAULT_HOST = "localhost"
 DEFAULT_PORT = "5432"
 ACTION_FILE = "actions.sql"
 
-def preprocess_workload_csv(workload_csv):
+def preprocess_workload_csv(workload_csv, processed_csv):
     rows = []
     with open(workload_csv, 'r') as f:
         csvreader = csv.reader(f)
@@ -27,7 +27,7 @@ def preprocess_workload_csv(workload_csv):
 
             i += 1
 
-    with open(workload_csv, 'w') as f:
+    with open(processed_csv, 'w') as f:
         csvwriter = csv.writer(f)
         csvwriter.writerows(rows)
 
@@ -47,14 +47,16 @@ def run_dexter(workload_csv, action_file):
 
 def recommend_actions(workload_csv):
     print(f"Preprocessing {workload_csv} to make it consumable to Dexter...")
-    preprocess_workload_csv(workload_csv)
+    processed_workload = f"{workload_csv}_processed";
+    preprocess_workload_csv(workload_csv, processed_workload)
     print('Done!')
     print('Running Dexter to get index recommendations...')
-    run_dexter(workload_csv, ACTION_FILE)
+    run_dexter(processed_workload, ACTION_FILE)
     print(f"Done! Actions dumped in {ACTION_FILE}")
 
 def set_log_duration(flag):
     value = 0 if flag else -1
+    print(f"Setting postgres log_min_duration_statement = {value}")
     cmd = f"PGPASSWORD={DEFAULT_PASS} psql --host={DEFAULT_HOST} --dbname={DEFAULT_DB} --username={DEFAULT_USER} --command=\"ALTER SYSTEM SET log_min_duration_statement = {value}\""
     os.popen(cmd)
     # don't have to reload postgres because testing script will do it later
@@ -75,12 +77,12 @@ def task_project1():
             print(f"{duration_collected} exists!")
             recommend_actions(workload_csv)
             set_log_duration(False)
-            print(f"Remove {duration_collected}")
+            print(f"Removing {duration_collected}")
             os.remove(duration_collected)
         else:
             print(f"{duration_collected} doesn't exists")
             set_log_duration(True)
-            print(f"Create {duration_collected}")
+            print(f"Creating {duration_collected}")
             with open(duration_collected, 'w') as f:
                 pass
 
