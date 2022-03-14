@@ -42,7 +42,7 @@ def run_dexter(workload_csv, action_file):
             table = tokens[2]
             field = tokens[3].strip('()')
             # create index idx_public_review_i_id on public.review (i_id);
-            sql = f"create index if not exists idx_{table.replace('.', '_')}_{field} on {table} ({field});"
+            sql = f"\"create index if not exists idx_{table.replace('.', '_')}_{field} on {table} ({field});\""
             os.popen(f"echo {sql} >> {action_file}")
 
 def recommend_actions(workload_csv):
