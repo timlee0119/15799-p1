@@ -37,7 +37,7 @@ def run_dexter(workload_csv, action_file):
         postgresql://{DEFAULT_USER}:{DEFAULT_PASS}@{DEFAULT_HOST}:{DEFAULT_PORT}/{DEFAULT_DB}").read()
     for line in out.split('\n'):
         # example: Index found: public.review (i_id)
-        if line.startswith('Index Found:'):
+        if line.startswith('Index found:'):
             tokens = line.split()
             table = tokens[2]
             field = tokens[3].strip('()')
@@ -46,7 +46,7 @@ def run_dexter(workload_csv, action_file):
             os.popen(f"echo {sql} >> {action_file}")
 
 def recommend_actions(workload_csv):
-    print(f"Preprocessing {workload_csv} to make it Dexter digestable...")
+    print(f"Preprocessing {workload_csv} to make it consumable to Dexter...")
     preprocess_workload_csv(workload_csv)
     print('Done!')
     print('Running Dexter to get index recommendations...')
@@ -55,9 +55,9 @@ def recommend_actions(workload_csv):
 
 def set_log_duration(flag):
     value = 0 if flag else -1
-    cmd = f"PGPASSWORD={DEFAULT_PASS} psql --host={DEFAULT_HOST} --dbname={DEFAULT_DB} \
-        --username={DEFAULT_USER} --command=\"ALTER SYSTEM SET log_min_duration_statement = {value}\""
+    cmd = f"PGPASSWORD={DEFAULT_PASS} psql --host={DEFAULT_HOST} --dbname={DEFAULT_DB} --username={DEFAULT_USER} --command=\"ALTER SYSTEM SET log_min_duration_statement = {value}\""
     os.popen('cmd')
+    # don't have to reload postgres because testing script will do it later
 
 def task_project1():
     """
@@ -69,11 +69,15 @@ def task_project1():
 
         duration_collected = 'duration_collected.tmp'
         if os.path.exists(duration_collected):
+            print(f"{duration_collected} exists!")
             recommend_actions()
             set_log_duration(False)
+            print(f"Remove {duration_collected}")
             os.remove(duration_collected)
         else:
+            print(f"{duration_collected} doesn't exists")
             set_log_duration(True)
+            print(f"Create {duration_collected}")
             with open(duration_collected, 'w') as f:
                 pass
 
