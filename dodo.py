@@ -56,7 +56,7 @@ def recommend_actions(workload_csv):
 def set_log_duration(flag):
     value = 0 if flag else -1
     cmd = f"PGPASSWORD={DEFAULT_PASS} psql --host={DEFAULT_HOST} --dbname={DEFAULT_DB} --username={DEFAULT_USER} --command=\"ALTER SYSTEM SET log_min_duration_statement = {value}\""
-    os.popen('cmd')
+    os.popen(cmd)
     # don't have to reload postgres because testing script will do it later
 
 def task_project1():
