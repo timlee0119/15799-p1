@@ -44,6 +44,13 @@ def run_dexter(workload_csv, action_file):
             # create index idx_public_review_i_id on public.review (i_id);
             sql = f"\"create index if not exists idx_{table.replace('.', '_')}_{field} on {table} ({field});\""
             os.popen(f"echo {sql} >> {action_file}")
+    # DEBUG
+    dexter_log = 'dexter.log'
+    with open(dexter_log, 'a') as f:
+        f.write(out)
+        f.write('\n\n')
+        f.write('================ End Running Dexter ===============')
+        f.write('\n\n')
 
 def recommend_actions(workload_csv):
     print(f"Preprocessing {workload_csv} to make it consumable to Dexter...")
