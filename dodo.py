@@ -1,6 +1,7 @@
 import os
 import sys
 import csv
+from doit.action import CmdAction
 
 DEFAULT_DB = "project1db"
 DEFAULT_USER = "project1user"
@@ -145,6 +146,7 @@ def task_project1_setup():
             drop_db_indexes,
             'echo "Done!"',
             'echo "Setting up project dependencies..."',
+            CmdAction('./install_dependencies.sh'),
             'echo "Done!"',
         ],
         "uptodate": [False],
