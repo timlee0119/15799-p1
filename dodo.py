@@ -119,19 +119,27 @@ def task_project1():
         ],
     }
 
+def cleanup_generated_files():
+    os.popen(f"rm -rf {ACTION_FILE} config.json *.tmp")
+
+def remove_db_indexes():
+    sql = "SELECT indexname, indexdef FROM pg_indexes WHERE schemaname = 'public' ORDER BY tablename, indexname"
+    get_indexes_cmd = get_psql_command(sql)
+    out = os.popen(get_indexes_cmd).read()
+    for line in out.split('\n')[2:-3]:  # skip useless rows
+        statements = line.split('|')
+        if 'CREATE UNIQUE' not in statements[1]:
+            index = statements[0].strip()
+            os.popen(get_psql_command(f"drop index if exists {index};"))
+
 def task_project1_setup():
     """
-    Setup dependencies.
+    Clean up previously generated files, drop non-unique db indexes, and setup dependencies.
     """
-    def remove_db_indexes():
-        sql = "SELECT indexname FROM pg_indexes WHERE schemaname = 'public' ORDER BY tablename, indexname"
-        get_indexes_cmd = get_psql_command(sql)
-        out = os.popen(get_indexes_cmd).read()
-        for line in out.split():
-            if line.startswith('idx_'):
-                os.popen(get_psql_command(f"drop index if exists {line};"))
     return {
         "actions": [
+            'echo "Cleaning up generated files..."',
+            cleanup_generated_files,
             'echo "Removing db indexes..."',
             remove_db_indexes,
             'echo "Done!"',
