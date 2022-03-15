@@ -8,6 +8,7 @@ DEFAULT_PASS = "project1pass"
 DEFAULT_HOST = "localhost"
 DEFAULT_PORT = "5432"
 ACTION_FILE = "actions.sql"
+DEXTER_CMD = "/usr/local/bin/dexter"
 
 def preprocess_workload_csv(workload_csv, processed_csv):
     rows = []
@@ -32,7 +33,7 @@ def preprocess_workload_csv(workload_csv, processed_csv):
         csvwriter.writerows(rows)
 
 def run_dexter(workload_csv, action_file):
-    out = os.popen(f"cat {workload_csv} | dexter --input-format=csv\
+    out = os.popen(f"cat {workload_csv} | {DEXTER_CMD} --input-format=csv\
         --min-calls=0 --min-time=0 --min-cost-savings-pct=30 \
         postgresql://{DEFAULT_USER}:{DEFAULT_PASS}@{DEFAULT_HOST}:{DEFAULT_PORT}/{DEFAULT_DB}").read()
     for line in out.split('\n'):
