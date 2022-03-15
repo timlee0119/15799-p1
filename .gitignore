@@ -3,3 +3,4 @@ __pycache__
 actions.sql
 config.json
 *.csv
+.doit.db
