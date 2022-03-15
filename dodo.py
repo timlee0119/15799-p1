@@ -122,7 +122,7 @@ def task_project1():
 def cleanup_generated_files():
     os.popen(f"rm -rf {ACTION_FILE} config.json *.tmp")
 
-def remove_db_indexes():
+def drop_db_indexes():
     sql = "SELECT indexname, indexdef FROM pg_indexes WHERE schemaname = 'public' ORDER BY tablename, indexname"
     get_indexes_cmd = get_psql_command(sql)
     out = os.popen(get_indexes_cmd).read()
@@ -140,8 +140,8 @@ def task_project1_setup():
         "actions": [
             'echo "Cleaning up generated files..."',
             cleanup_generated_files,
-            'echo "Removing db indexes..."',
-            remove_db_indexes,
+            'echo "Dropping db indexes..."',
+            drop_db_indexes,
             'echo "Done!"',
             'echo "Setting up project dependencies..."',
             'echo "Done!"',
