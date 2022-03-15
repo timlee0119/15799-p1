@@ -54,17 +54,20 @@ def run_dexter(workload_csv, action_file):
 
 def recommend_actions(workload_csv):
     print(f"Preprocessing {workload_csv} to make it consumable to Dexter...")
-    processed_workload = f"{workload_csv}_processed";
+    processed_workload = f"{workload_csv}_processed"
     preprocess_workload_csv(workload_csv, processed_workload)
     print('Done!')
     print('Running Dexter to get index recommendations...')
     run_dexter(processed_workload, ACTION_FILE)
     print(f"Done! Actions dumped in {ACTION_FILE}")
 
+def get_psql_command(sql):
+    return f"PGPASSWORD={DEFAULT_PASS} psql --host={DEFAULT_HOST} --dbname={DEFAULT_DB} --username={DEFAULT_USER} --command=\"{sql}\""
+
 def set_log_duration(flag):
     value = 0 if flag else -1
     print(f"Setting postgres log_min_duration_statement = {value}")
-    cmd = f"PGPASSWORD={DEFAULT_PASS} psql --host={DEFAULT_HOST} --dbname={DEFAULT_DB} --username={DEFAULT_USER} --command=\"ALTER SYSTEM SET log_min_duration_statement = {value}\""
+    cmd = get_psql_command(f"ALTER SYSTEM SET log_min_duration_statement = {value}")
     os.popen(cmd)
     # don't have to reload postgres because testing script will do it later
 
@@ -120,8 +123,18 @@ def task_project1_setup():
     """
     Setup dependencies.
     """
+    def remove_db_indexes():
+        sql = "SELECT indexname FROM pg_indexes WHERE schemaname = 'public' ORDER BY tablename, indexname"
+        get_indexes_cmd = get_psql_command(sql)
+        out = os.popen(get_indexes_cmd).read()
+        for line in out.split():
+            if line.startswith('idx_'):
+                os.popen(get_psql_command(f"drop index if exists {line};"))
     return {
         "actions": [
+            'echo "Removing db indexes..."',
+            remove_db_indexes,
+            'echo "Done!"',
             'echo "Setting up project dependencies..."',
             'echo "Done!"',
         ],
