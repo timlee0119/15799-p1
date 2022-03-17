@@ -134,12 +134,34 @@ def drop_db_indexes():
             index = statements[0].strip()
             os.popen(get_psql_command(f"drop index if exists {index};"))
 
+def set_up_pgtune():
+    config = """max_connections = 100
+shared_buffers = 4GB
+effective_cache_size = 12GB
+maintenance_work_mem = 1GB
+checkpoint_completion_target = 0.9
+wal_buffers = 16MB
+default_statistics_target = 100
+random_page_cost = 1.1
+effective_io_concurrency = 200
+work_mem = 10485kB
+min_wal_size = 1GB
+max_wal_size = 4GB
+max_worker_processes = 4
+max_parallel_workers_per_gather = 2
+max_parallel_workers = 4
+max_parallel_maintenance_workers = 2"""
+    os.popen(f"sudo sh -c 'echo \"{config}\" >> /etc/postgresql/14/main/postgresql.conf'")
+
 def task_project1_setup():
     """
     Clean up previously generated files, drop non-unique db indexes, and setup dependencies.
     """
     return {
         "actions": [
+            'echo "Setting PGTune parameters..."',
+            set_up_pgtune,
+            'echo "Done!"',
             'echo "Cleaning up generated files..."',
             cleanup_generated_files,
             'echo "Dropping db indexes..."',
